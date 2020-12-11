@@ -13,5 +13,5 @@ func GetClient() *radix.Pool {
 	}
 }
 
-func ClientDo()
-.Do(radix.Cmd(nil, "SET", "foo", "someval"))
+//func ClientDo()
+//.Do(radix.Cmd(nil, "SET", "foo", "someval"))
