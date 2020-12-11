@@ -1,4 +1,4 @@
-module evilrus/speak-easy/toolbox
+module evilrus.c/speak-easy/toolbox
 
 go 1.15
 
