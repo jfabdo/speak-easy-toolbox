@@ -17,7 +17,7 @@ func GetClient() *radix.Pool {
 	}
 }
 
-//ClientDo makes your client do a command
-func ClientDo(clnt *radix.Pool, to interface{}, cmd string, on string, val string) {
+//ClientDoReturnNil makes your client do a command
+func ClientDoReturnNil(clnt *radix.Pool, cmd string, on string, val string) {
 	clnt.Do(radix.Cmd(to, cmd, on, val))
 }
