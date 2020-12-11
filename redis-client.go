@@ -19,5 +19,5 @@ func GetClient() *radix.Pool {
 
 //ClientDoReturnNil makes your client do a command
 func ClientDoReturnNil(clnt *radix.Pool, cmd string, on string, val string) {
-	clnt.Do(radix.Cmd(to, cmd, on, val))
+	clnt.Do(radix.Cmd(nil, cmd, on, val))
 }
