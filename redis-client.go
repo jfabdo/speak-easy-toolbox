@@ -3,6 +3,7 @@ package toolbox
 import (
 	"log"
 	"os"
+	"time"
 
 	"github.com/mediocregopher/radix/v3"
 )
@@ -26,7 +27,7 @@ func GetPubSub(channel string) chan radix.PubSubMessage {
 		panic(err)
 	}
 	ps := radix.PubSub(conn)
-	// defer ps.Close()
+	defer ps.Close()
 
 	msgCh := make(chan radix.PubSubMessage)
 	//
@@ -39,7 +40,18 @@ func GetPubSub(channel string) chan radix.PubSubMessage {
 
 //WaitForPubSub will wait when invoked
 func WaitForPubSub(msgCh chan radix.PubSubMessage) radix.PubSubMessage {
-	errCh := make(chan error)
+	errCh := make(chan error, 1)
+	go func() {
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+		// for range ticker.C {
+		// 	if err := ps.Ping(); err != nil {
+		// 		errCh <- err
+		// 		return
+		// 	}
+		// }
+	}()
+
 	for {
 		select {
 		case msg := <-msgCh:
