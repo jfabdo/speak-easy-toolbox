@@ -30,23 +30,15 @@ func GetPubSub(channel string) chan radix.PubSubMessage {
 
 	msgCh := make(chan radix.PubSubMessage)
 	//
-	if err := ps.Subscribe(msgCh, channel); err != nil {
-		panic(err)
-	}
+	ps.Subscribe(msgCh, channel)
+	// if err := ; err != nil {
+	// 	panic(err)
+	// }
 	return msgCh
 }
 
 //WaitForPubSub will wait when invoked
 func WaitForPubSub(msgCh chan radix.PubSubMessage) {
-	errCh := make(chan error)
-	for {
-		select {
-		case <-msgCh:
-			return
-		case err := <-errCh:
-			panic(err)
-		}
-	}
 }
 
 //WaitForHash will wait when invoked
