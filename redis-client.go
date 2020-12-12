@@ -37,7 +37,21 @@ func GetPubSub(channel string) chan radix.PubSubMessage {
 }
 
 //WaitForPubSub will wait when invoked
-func WaitForPubSub(aesHash string, msgCh chan radix.PubSubMessage) radix.PubSubMessage {
+func WaitForPubSub(msgCh chan radix.PubSubMessage) {
+	errCh := make(chan error)
+	for {
+		select {
+		case msg := <-msgCh:
+			print(msg.Channel)
+			return
+		case err := <-errCh:
+			panic(err)
+		}
+	}
+}
+
+//WaitForHash will wait when invoked
+func WaitForHash(aesHash string, msgCh chan radix.PubSubMessage) radix.PubSubMessage {
 	errCh := make(chan error)
 	for {
 		select {
