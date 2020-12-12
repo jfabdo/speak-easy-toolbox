@@ -54,14 +54,14 @@ func GetSub(channel string) chan radix.PubSubMessage {
 func WaitForPubSub(msgCh chan radix.PubSubMessage) radix.PubSubMessage {
 	errCh := make(chan error, 1)
 
-	for {
-		select {
-		case msg := <-msgCh:
-			return msg
-		case err := <-errCh:
-			panic(err)
-		}
+	// for {
+	select {
+	case msg := <-msgCh:
+		return msg
+	case err := <-errCh:
+		panic(err)
 	}
+	// }
 }
 
 //WaitForHash will wait when invoked
