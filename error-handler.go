@@ -6,6 +6,6 @@ import (
 
 //ErrorHandler pushes an error to the error q
 func ErrorHandler(err error) {
-	clnt := GetClient()
+	clnt := GetPool()
 	clnt.Do(radix.Cmd(nil, "rpush", "error", string(err.Error())))
 }
