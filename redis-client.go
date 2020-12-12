@@ -41,8 +41,7 @@ func WaitForPubSub(msgCh chan radix.PubSubMessage) {
 	errCh := make(chan error)
 	for {
 		select {
-		case msg := <-msgCh:
-			print(msg.Channel)
+		case <-msgCh:
 			return
 		case err := <-errCh:
 			panic(err)
@@ -56,7 +55,7 @@ func WaitForHash(aesHash string, msgCh chan radix.PubSubMessage) radix.PubSubMes
 	for {
 		select {
 		case msg := <-msgCh:
-			if string(msg.Message) == string(aesHash) {
+			if string(AsSha256(msg.Message)) == string(aesHash) {
 				return msg
 			}
 			log.Printf("publish to channel %q received: %q", msg.Channel, msg.Message)
