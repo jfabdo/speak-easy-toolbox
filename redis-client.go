@@ -19,7 +19,7 @@ func GetPool() *radix.Pool {
 }
 
 //GetPubSub returns something to listen to pubsub with
-func GetPubSub(aesHash string, channel string) chan radix.PubSubMessage {
+func GetPubSub(channel string) chan radix.PubSubMessage {
 	conn, err := radix.Dial("tcp", os.Getenv("ERU_SE_REDIS_IP"))
 	if err != nil {
 		println(err)

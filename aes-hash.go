@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+//AsSha256 returns the sha256 hash
 func AsSha256(o interface{}) string {
 	h := sha256.New()
 	h.Write([]byte(fmt.Sprintf("%v", o)))
