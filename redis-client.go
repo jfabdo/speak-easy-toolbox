@@ -26,7 +26,7 @@ func GetPubSub(channel string) chan radix.PubSubMessage {
 		panic(err)
 	}
 	ps := radix.PubSub(conn)
-	defer ps.Close()
+	// defer ps.Close()
 
 	msgCh := make(chan radix.PubSubMessage)
 	//
@@ -37,9 +37,9 @@ func GetPubSub(channel string) chan radix.PubSubMessage {
 	return msgCh
 }
 
-//WaitForPubSub will wait when invoked
-func WaitForPubSub(msgCh chan radix.PubSubMessage) {
-}
+// //WaitForPubSub will wait when invoked
+// func WaitForPubSub(msgCh chan radix.PubSubMessage) {
+// }
 
 //WaitForHash will wait when invoked
 func WaitForHash(aesHash string, msgCh chan radix.PubSubMessage) radix.PubSubMessage {
