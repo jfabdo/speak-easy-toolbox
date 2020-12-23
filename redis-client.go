@@ -19,30 +19,30 @@ func GetPool() *radix.Pool {
 }
 
 //GetPubSubConn returns only the working connection for redis
-func GetPubSubConn() radix.Conn {
+func GetPubSubConn() *radix.Conn {
 	conn, err := radix.Dial("tcp", os.Getenv("ERU_SE_REDIS_IP"))
 	if err != nil {
 		//stuff
 	}
-	return conn
+	return &conn
 }
 
 //Publish publishes a message to a certain
-func Publish(channel string, body string, conn radix.Conn) {
+func Publish(channel string, body string, conn *radix.Conn) {
 	if conn == nil {
 		conn = GetPubSubConn()
 	}
-	ps := radix.PubSub(conn)
+	ps := radix.PubSub(*conn)
 	defer ps.Close()
-	conn.Do(radix.Cmd("publish", channel, body))
+	(*conn).Do(radix.Cmd("publish", channel, body))
 }
 
 //GetSub returns something to listen to pubsub with
-func GetSub(conn radix.Conn, channel string) chan radix.PubSubMessage {
+func GetSub(channel string, conn *radix.Conn) chan radix.PubSubMessage {
 	if conn == nil {
 		conn = GetPubSubConn()
 	}
-	ps := radix.PubSub(conn)
+	ps := radix.PubSub(*conn)
 	defer ps.Close()
 
 	msgCh := make(chan radix.PubSubMessage)
