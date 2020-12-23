@@ -28,8 +28,10 @@ func GetPubSubConn() radix.Conn {
 }
 
 //Publish publishes a message to a certain
-func Publish(channel string, body string) {
-	conn := GetPubSubConn()
+func Publish(channel string, body string, conn radix.Conn) {
+	if conn == nil {
+		conn = GetPubSubConn()
+	}
 	ps := radix.PubSub(conn)
 	defer ps.Close()
 	conn.Do(radix.Cmd("publish", channel, body))
