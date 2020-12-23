@@ -18,6 +18,20 @@ func GetPool() *radix.Pool {
 	}
 }
 
+//GetKey returns a new pool
+func GetKey(key string, topic string, conn *radix.Pool) string {
+	if conn == nil {
+		conn = GetPool()
+	}
+	var value string
+	err := conn.Do(radix.Cmd(value, "hget", topic, key))
+	if err != nil {
+		println(err)
+		panic(err)
+	}
+	return value
+}
+
 //GetPubSubConn returns only the working connection for redis
 func GetPubSubConn() *radix.Conn {
 	conn, err := radix.Dial("tcp", os.Getenv("ERU_SE_REDIS_IP"))
