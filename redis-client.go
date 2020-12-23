@@ -36,8 +36,10 @@ func Publish(channel string, body string) {
 }
 
 //GetSub returns something to listen to pubsub with
-func GetSub(channel string) chan radix.PubSubMessage {
-	conn := GetPubSubConn()
+func GetSub(conn radix.Conn, channel string) chan radix.PubSubMessage {
+	if conn == nil {
+		conn = GetPubSubConn()
+	}
 	ps := radix.PubSub(conn)
 	defer ps.Close()
 
