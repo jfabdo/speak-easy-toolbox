@@ -3,7 +3,6 @@ package toolbox
 import (
 	"log"
 	"os"
-	"time"
 
 	"github.com/mediocregopher/radix/v3"
 )
@@ -19,51 +18,32 @@ func GetPubSubConn() radix.PubSubConn {
 	return ps
 }
 
-//Publish publishes a message to a certain
-func Publish(channel string, body string, conn radix.PubSubConn) {
-	if conn == nil {
-		conn = GetPubSubConn()
-	}
+// //Publish publishes a message to a certain
+// func Publish(channel string, body string, conn radix.PubSubConn) {
+// 	if conn == nil {
+// 		conn = GetPubSubConn()
+// 	}
 
-	var msg radix.PubSubMessage
-	msg.Type = "message"
-	msg.Channel = channel
-	msg.Message = []byte(body)
-	// var message bufio.Reader
-	conn.Do(radix.Cmd(nil, "publish", msg.Channel))
-	// err := msg.MarshalRESP()
-	// if err != nil {
-	// ErrorHandler(err)
-	// }
-}
+// 	var msg radix.PubSubMessage
+// 	msg.Type = "message"
+// 	msg.Channel = channel
+// 	msg.Message = []byte(body)
+// 	// var message bufio.Reader
+// 	conn.Do(radix.Cmd(nil, "publish", msg.Channel))
+// 	// err := msg.MarshalRESP()
+// 	// if err != nil {
+// 	// ErrorHandler(err)
+// 	// }
+// }
 
 //GetSub returns something to listen to pubsub with
-func GetSub(channel string, conn radix.PubSubConn) radix.PubSubMessage {
+func GetSub(channel string, conn radix.Conn) radix.PubSubMessage {
+	results := make(chan radix.PubSubMessage)
 	if conn == nil {
-		conn = GetPubSubConn()
+		conn = GetConn()
 	}
-	defer conn.Close()
-
-	msgCh := make(chan radix.PubSubMessage)
-	conn.Subscribe(msgCh, channel)
-
-	errCh := make(chan error, 1)
-	ticker := time.NewTicker(5 * time.Second)
-	defer ticker.Stop()
-	for range ticker.C {
-		if err := conn.Ping(); err != nil {
-			errCh <- err
-			return <-msgCh
-		}
-	}
-	for {
-		select {
-		case msg := <-msgCh:
-			return msg
-		case err := <-errCh:
-			ErrorHandler(err)
-		}
-	}
+	ps := radix.PersistentPubSubWithOpts(conn)
+	ps.Subscribe(results, "__keyspace@0__:sentences")
 }
 
 //WaitForHash will wait when invoked
