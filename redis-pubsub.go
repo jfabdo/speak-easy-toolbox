@@ -8,8 +8,6 @@ import (
 	"github.com/mediocregopher/radix/v3"
 )
 
-
-
 //GetPubSubConn returns only the working connection for redis
 func GetPubSubConn() radix.PubSubConn {
 	conn, err := radix.Dial("tcp", os.Getenv("ERU_SE_REDIS_IP"))
@@ -18,7 +16,7 @@ func GetPubSubConn() radix.PubSubConn {
 	}
 	ps := radix.PubSub(conn)
 	// defer close(ps)
-	return &ps
+	return ps
 }
 
 //Publish publishes a message to a certain
