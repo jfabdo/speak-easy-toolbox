@@ -42,7 +42,10 @@ func GetSub(channel string, conn radix.Conn) radix.PubSubMessage {
 	if conn == nil {
 		conn = *GetConn()
 	}
-	ps := radix.PersistentPubSubWithOpts(conn)
+	ps, err := radix.PersistentPubSubWithOpts(conn)
+	if err != nil {
+		//
+	}
 	ps.Subscribe(results, "__keyspace@0__:sentences")
 }
 
