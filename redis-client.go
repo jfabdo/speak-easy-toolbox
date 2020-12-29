@@ -3,6 +3,7 @@ package toolbox
 import (
 	"log"
 	"os"
+	"time"
 
 	"github.com/mediocregopher/radix/v3"
 )
@@ -32,54 +33,95 @@ func GetKey(key string, topic string, conn *radix.Pool) string {
 	return value
 }
 
+//GetAll gets everything at that key
+func GetAll(key string, conn *radix.Pool) string {
+	if conn == nil {
+		conn = GetPool()
+	}
+	var value string
+	err := conn.Do(radix.Cmd(value, "hgetall", key))
+	if err != nil {
+		println(err)
+		panic(err)
+	}
+	return value
+}
+
+//SetKeyValue returns a new pool
+func SetKeyValue(key string, value string, topic string, conn *radix.Pool) string {
+	if conn == nil {
+		conn = GetPool()
+	}
+	// var value string
+	err := conn.Do(radix.Cmd(nil, "hset", topic, key, value))
+	if err != nil {
+		println(err)
+		panic(err)
+	}
+	return value
+}
+
 //GetPubSubConn returns only the working connection for redis
-func GetPubSubConn() *radix.Conn {
+func GetPubSubConn() radix.PubSubConn {
 	conn, err := radix.Dial("tcp", os.Getenv("ERU_SE_REDIS_IP"))
 	if err != nil {
-		//stuff
+		ErrorHandler((err))
 	}
-	return &conn
+	ps := radix.PubSub(conn)
+	// defer close(ps)
+	return &ps
 }
 
 //Publish publishes a message to a certain
-func Publish(channel string, body string, conn *radix.Conn) {
+func Publish(channel string, body string, conn radix.PubSubConn) {
 	if conn == nil {
 		conn = GetPubSubConn()
 	}
-	ps := radix.PubSub(*conn)
-	defer ps.Close()
-	(*conn).Do(radix.Cmd("publish", channel, body))
+
+	var msg radix.PubSubMessage
+	msg.Type = "message"
+	msg.Channel = channel
+	msg.Message = []byte(body)
+	// var message bufio.Reader
+	conn.Do(radix.Cmd(nil, "publish", msg.Channel))
+	// err := msg.MarshalRESP()
+	// if err != nil {
+	// ErrorHandler(err)
+	// }
 }
 
 //GetSub returns something to listen to pubsub with
-func GetSub(channel string, conn *radix.Conn) chan radix.PubSubMessage {
+func GetSub(channel string, conn radix.PubSubConn) radix.PubSubMessage{
 	if conn == nil {
 		conn = GetPubSubConn()
 	}
-	ps := radix.PubSub(*conn)
-	defer ps.Close()
+	// ps := radix.PubSub(conn)
+	defer conn.Close()
 
 	msgCh := make(chan radix.PubSubMessage)
 	//
-	ps.Subscribe(msgCh, channel)
+	conn.Subscribe(msgCh, channel)
 	// if err := ; err != nil {
 	// 	panic(err)
 	// }
-	return msgCh
-}
 
-//WaitForPubSub will wait when invoked
-func WaitForPubSub(msgCh chan radix.PubSubMessage) radix.PubSubMessage {
 	errCh := make(chan error, 1)
-
-	// for {
-	select {
-	case msg := <-msgCh:
-		return msg
-	case err := <-errCh:
-		panic(err)
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+	for range ticker.C {
+		if err := conn.Ping(); err != nil {
+			errCh <- err
+			return <- msgCh
+		}
 	}
-	// }
+	for {
+		select {
+		case msg := <-msgCh:
+			return msg
+		case err := <-errCh:
+			ErrorHandler(err)
+		}
+	}
 }
 
 //WaitForHash will wait when invoked
