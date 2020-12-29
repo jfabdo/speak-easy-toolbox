@@ -9,13 +9,13 @@ import (
 
 //GetPubSubConn returns only the working connection for redis
 func GetPubSubConn() radix.PubSubConn {
-	conn, err := radix.Dial("tcp", os.Getenv("ERU_SE_REDIS_IP"))
+	conn, err := radix.PersistentPubSubWithOpts("tcp", os.Getenv("ERU_SE_REDIS_IP"))
 	if err != nil {
 		ErrorHandler((err))
 	}
-	ps := radix.PubSub(conn)
+	// ps := radix.PubSub(conn)
 	// defer close(ps)
-	return ps
+	return conn
 }
 
 // //Publish publishes a message to a certain
@@ -37,16 +37,13 @@ func GetPubSubConn() radix.PubSubConn {
 // }
 
 //GetSub returns something to listen to pubsub with
-func GetSub(channel string, conn radix.Conn) radix.PubSubMessage {
+func GetSub(channel string, conn radix.PubSubConn) radix.PubSubMessage {
 	results := make(chan radix.PubSubMessage)
 	if conn == nil {
-		conn = *GetConn()
+		conn = GetPubSubConn()
 	}
-	ps, err := radix.PersistentPubSubWithOpts(conn)
-	if err != nil {
-		//
-	}
-	ps.Subscribe(results, "__keyspace@0__:sentences")
+	conn.Subscribe(results, "__keyspace@0__:sentences")
+	return <-results
 }
 
 //WaitForHash will wait when invoked
