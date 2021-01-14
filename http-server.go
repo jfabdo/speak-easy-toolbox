@@ -14,7 +14,7 @@ func GetServer(fulladdress string, port string, fn func(http.ResponseWriter, *ht
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
-func GetFileServer(fulladdress string, port string, dir string, fn func(http.ResponseWriter, *http.Request)) {
+func GetFileServer(fulladdress string, port string, dir string) {
 	fs := http.FileServer(http.Dir(dir))
 	http.Handle(fulladdress, fs)
 
