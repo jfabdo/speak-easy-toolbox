@@ -14,6 +14,7 @@ func GetServer(fulladdress string, port string, fn func(http.ResponseWriter, *ht
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
+//GetFileServer returns a file server to serve static files
 func GetFileServer(fulladdress string, port string, dir string) {
 	fs := http.FileServer(http.Dir(dir))
 	http.Handle(fulladdress, fs)
